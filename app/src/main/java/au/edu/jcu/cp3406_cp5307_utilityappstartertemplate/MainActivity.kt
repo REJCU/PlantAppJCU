@@ -127,7 +127,6 @@ fun UtilityApp(shader: RuntimeShader ,brush: ShaderBrush) {
                     size.width,
                     size.height
                 )
-                shader.setFloatUniform("iResolution", size.width, size.height)
                 shader.setFloatUniform("iTime", time)
                 shader.setFloatUniform("iDuration", 2.0f)
 
