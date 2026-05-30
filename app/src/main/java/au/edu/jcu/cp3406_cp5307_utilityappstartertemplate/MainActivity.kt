@@ -1,5 +1,6 @@
 package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate
 
+import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,16 +43,42 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.MediaType
 import androidx.compose.runtime.getValue
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.BuildConfig
+import java.net.URL
+// retrofit
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 const val myKey = BuildConfig.NASA_API_KEY
 
+// retrofit
+
+
+// root response object
+data class PlantSpeciesInfo(
+    val id: Int,
+    val commonName: String,
+    val wateringInterval: Int,
+    val description: String
+)
+
+interface PlantAPI {
+    @GET("species-list")
+    suspend fun getPlantSpecies(
+        @Query("key") apiKey : String,
+        @Query("q") query: String
+    ): List<PlantSpeciesInfo>
+}
 
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU) // shaders requires version 33
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
             CP3406_CP5603UtilityAppStarterTemplateTheme {
@@ -97,7 +124,7 @@ fun UtilityApp(shader: RuntimeShader ,brush: ShaderBrush) {
         initialValue = 0f,
         targetValue = 10f, // one cycle
         animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing), // 10 seconds per loop
+            animation = tween(100000, easing = LinearEasing), // adjust number for anim length
             repeatMode = androidx.compose.animation.core.RepeatMode.Restart
         ),
         label = "TimeUniform"
