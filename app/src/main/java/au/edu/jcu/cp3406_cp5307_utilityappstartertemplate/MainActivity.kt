@@ -51,6 +51,9 @@ import java.net.URL
 // retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import kotlinx.coroutines.flow.Flow
 
 const val myKey = BuildConfig.NASA_API_KEY
 
@@ -71,6 +74,25 @@ interface PlantAPI {
         @Query("key") apiKey : String,
         @Query("q") query: String
     ): List<PlantSpeciesInfo>
+}
+
+
+data class TrackedPlant(
+    val id: String,
+    val name: String,
+    val species: String,
+    val wateringIntervalDays: Int,
+    val lastWatered: LocalDate
+) {
+    val daysUntilNextWater: Int
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() {
+            val nextWateringDate = lastWatered.plusDays(wateringIntervalDays.toLong())
+            return ChronoUnit.DAYS.between(LocalDate.now(), nextWateringDate).toInt()
+        }
+    val needsWatering: Boolean
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() = daysUntilNextWater < 0
 }
 
 
