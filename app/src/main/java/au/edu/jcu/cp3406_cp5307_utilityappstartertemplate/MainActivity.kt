@@ -1,6 +1,5 @@
 package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate
 
-import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -43,17 +42,16 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.content.MediaType
-import androidx.compose.ui.graphics.Interval
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.BuildConfig
-import java.net.URL
+import androidx.lifecycle.ViewModel
 // retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.UUID
 
 const val myKey = BuildConfig.NASA_API_KEY
@@ -99,8 +97,18 @@ data class TrackedPlant(
 class PlantRepo(private val api: PlantAPI) {
     @RequiresApi(Build.VERSION_CODES.O)
     private val _trackedPlants = mutableListOf(
-        TrackedPlant(UUID.randomUUID().toString(), "Rose", "Crimson Siluetta", 3, LocalDate.now().minusDays(1)),
-        TrackedPlant(UUID.randomUUID().toString(), "Lily", "Casa Blanca", 2, LocalDate.now().minusDays(2)),
+        TrackedPlant(
+            UUID.randomUUID().toString(),
+            "Rose",
+            "Crimson Siluetta",
+            3,
+            LocalDate.now().minusDays(1)),
+        TrackedPlant(
+            UUID.randomUUID().toString(),
+            "Lily",
+            "Casa Blanca",
+            2,
+            LocalDate.now().minusDays(2)),
     )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -128,6 +136,48 @@ class PlantRepo(private val api: PlantAPI) {
     }
 }
 
+data class UiState(
+    val plants: List<TrackedPlant> = emptyList(),
+    val sortByUrgency: Boolean = false,
+    val isLoading: Boolean = false
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
+class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    init {
+        loadPlants()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun loadPlants() {
+        val currentList = repository.getTrackedPlants()
+        updateUiList(currentList)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun waterPlant(plantId: String) {
+        repository.updateWateringTime(plantId)
+        loadPlants()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun toggleSort(sort: Boolean) {
+        _uiState.update { it.copy(sortByUrgency = sort) }
+        loadPlants()
+    }
+
+    private fun  updateUiList(list: List<TrackedPlant>) {
+        val sortList = if (_uiState.value.sortByUrgency) {
+            list.sortedBy { it.daysUntilNextWater }
+        } else {
+            list.sortedBy { it.name }
+        }
+        _uiState.update { it.copy(plants = sortList) }
+        }
+    }
 
 
 class MainActivity : ComponentActivity() {
