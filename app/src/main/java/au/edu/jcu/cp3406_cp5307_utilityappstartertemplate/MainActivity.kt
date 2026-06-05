@@ -2,6 +2,7 @@ package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate
 
 import android.R.attr.icon
 import android.R.id.icon
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,14 +46,25 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
 // retrofit
@@ -147,13 +159,18 @@ class PlantRepo(private val api: PlantAPI) {
         )
         _trackedPlants.add(newPlant)
     }
+
+
+
 }
 
 data class UiState(
     val plants: List<TrackedPlant> = emptyList(),
     val sortByUrgency: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isAddPlantDialogVisible: Boolean = false
 )
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PlantViewModel : ViewModel() {
@@ -187,6 +204,25 @@ class PlantViewModel : ViewModel() {
 
     init {
         refreshUiList()
+    }
+
+    fun showAddPlantDialog() {
+        _uiState.update { it.copy(isAddPlantDialogVisible = true) }
+    }
+
+    fun dismissAddPlantDialog() {
+        _uiState.update { it.copy(isAddPlantDialogVisible = false) }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun addLocalPlant(name: String, species: String, wateringInterval: Int) {
+        val newPlant = TrackedPlant(
+            UUID.randomUUID().toString(),
+            name,
+            species,
+            wateringInterval,
+            LocalDate.now()
+        )
     }
 
     fun waterPlant(plantId: String) {
@@ -258,6 +294,8 @@ fun UtilityApp(shader: RuntimeShader ,brush: ShaderBrush) {
 
     val plantViewModel: PlantViewModel = viewModel()
 
+    val uiState by plantViewModel.uiState.collectAsState()
+
     // infinite transition logic
     val infiniteTransition = rememberInfiniteTransition(label = "ShaderTime")
     val time by infiniteTransition.animateFloat(
@@ -286,6 +324,20 @@ fun UtilityApp(shader: RuntimeShader ,brush: ShaderBrush) {
                     onClick = { selectedTab = "Settings" }
                 )
             }
+        },
+        floatingActionButton = {
+            if (selectedTab == "Utility") {
+                FloatingActionButton(
+                    onClick = { plantViewModel.showAddPlantDialog() },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "add plant"
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Box(modifier = Modifier
@@ -304,14 +356,78 @@ fun UtilityApp(shader: RuntimeShader ,brush: ShaderBrush) {
                     drawRect(brush)
                 }
             }
-        )
-    {
+        ) {
             when (selectedTab) {
                 "Utility" -> UtilityScreen(viewModel = plantViewModel)
                 "Settings" -> SettingsScreen()
             }
         }
+
+        if (uiState.isAddPlantDialogVisible) {
+             AddPlantDialog(
+                onDismiss = { plantViewModel.dismissAddPlantDialog() },
+                onConfirm = { name, species, interval ->
+                    plantViewModel.addLocalPlant(name, species, interval ?: 0)
+                }
+            )
+        }
     }
+}
+
+@Composable
+fun AddPlantDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, species: String, intervalDays: Int?) -> Unit) {
+
+    var  nameInput by remember { mutableStateOf("") }
+    var  speciesInput by remember { mutableStateOf("") }
+    var  intervalInput by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Track new plant", style = MaterialTheme.typography.titleLarge) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = nameInput,
+                onValueChange = { nameInput = it },
+                label = { Text("Name") }
+            )
+
+            OutlinedTextField(
+                value = speciesInput,
+                onValueChange = {  speciesInput = it },
+                label = { Text("Species") }
+            )
+
+            OutlinedTextField(
+                value = intervalInput,
+                onValueChange = {  intervalValue ->
+                    if (intervalValue.all {it.isDigit() }) {
+                        intervalInput = intervalValue
+                    }
+                },
+                label = { Text("Watering Interval") }
+            )
+        }
+    },
+    confirmButton = {
+        Button(
+            onClick = {
+                if (nameInput.isNotBlank() && speciesInput.isNotBlank() && intervalInput != null ) {
+                    val intervalInt = intervalInput.toIntOrNull()
+                    onConfirm(nameInput, speciesInput, intervalInt )
+                } })
+        {
+            Text("Add Plant")
+        }
+    },
+    dismissButton = {
+        TextButton(onClick = onDismiss) {
+            Text("Cancel")
+        }
+}
+)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -421,6 +537,7 @@ fun PlantCard(
 
 // absolute value math eval for clean text translation logic
 private fun absoluteValue(value: Int): Int = if (value < 0) -value else value
+
 
 @Composable
 fun SettingsScreen() {
