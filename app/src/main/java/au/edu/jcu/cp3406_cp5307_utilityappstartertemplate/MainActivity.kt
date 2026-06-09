@@ -36,14 +36,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.components.AddPlantDialog
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.SettingsScreen
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.UtilityScreen
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.theme.BACKGROUND_SHADER_SRC
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.theme.CP3406_CP5603UtilityAppStarterTemplateTheme
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDatabase
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantRepo
 
 const val myKey = BuildConfig.NASA_API_KEY
 
@@ -51,12 +57,26 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // init
+        val database = PlantDatabase.getDatabase(applicationContext)
+        val plantDao = database.plantDao()
+
+        // supply to repo instance
+        val plantRepository = PlantRepo(plantDao, null) // add api here
+
+        // factory injection
+        val plantViewModelFactory = viewModelFactory { initializer {
+            PlantViewModel(plantRepository)
+            }
+        }
+
         enableEdgeToEdge()
         setContent {
             CP3406_CP5603UtilityAppStarterTemplateTheme {
                 val shader = remember { RuntimeShader(BACKGROUND_SHADER_SRC) }
                 val brush = remember { ShaderBrush(shader) }
-                UtilityApp(shader, brush)
+                UtilityApp(shader, brush, plantViewModelFactory)
             }
         }
     }
@@ -64,9 +84,13 @@ class MainActivity : ComponentActivity() {
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun UtilityApp(shader: RuntimeShader, brush: ShaderBrush) {
+fun UtilityApp(
+    shader: RuntimeShader,
+    brush: ShaderBrush,
+    plantViewModelFactory: ViewModelProvider.Factory
+) {
     var selectedTab by remember { mutableStateOf("Utility") }
-    val plantViewModel: PlantViewModel = viewModel()
+    val plantViewModel: PlantViewModel = viewModel(factory =  plantViewModelFactory)
     val uiState by plantViewModel.uiState.collectAsState()
 
     val infiniteTransition = rememberInfiniteTransition(label = "ShaderTime")
@@ -143,7 +167,16 @@ fun UtilityAppPreview() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val shader = RuntimeShader(BACKGROUND_SHADER_SRC)
             val brush = ShaderBrush(shader)
-            UtilityApp(shader, brush)
+
+            val context = LocalContext.current
+            val previewFactory = viewModelFactory {
+                initializer {
+                    val flowerDb = PlantDatabase.getDatabase(context)
+                    PlantViewModel(PlantRepo(flowerDb.plantDao(), null))
+                }
+            }
+
+            UtilityApp(shader, brush, plantViewModelFactory = previewFactory)
         } else {
             Text("Shader support requires Android 13+")
         }
