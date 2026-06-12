@@ -14,6 +14,7 @@ composeBom = "2024.09.00"
 lifecycleViewmodelCompose = "2.10.0"
 retrofit = "3.0.0"
 secretsGradlePlugin = "2.0.1"
+ksp = "2.0.21-1.0.26"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,3 +42,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

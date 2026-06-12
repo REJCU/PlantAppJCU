@@ -27,7 +27,7 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
         viewModelScope.launch {
             combine(repository.trackedPlants, _uiState) { plants, state ->
                 if (state.sortByUrgency) {
-                    plants.sortedBy { it.daysUntilNextWater }
+                    plants.sortedBy { it.getDaysUntilNextWater()}
                 } else {
                     plants.sortedBy { it.name }
                 }

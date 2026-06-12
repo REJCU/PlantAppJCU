@@ -171,8 +171,7 @@ fun UtilityAppPreview() {
             val context = LocalContext.current
             val previewFactory = viewModelFactory {
                 initializer {
-                    val flowerDb = PlantDatabase.getDatabase(context)
-                    PlantViewModel(PlantRepo(flowerDb.plantDao(), null))
+                    PlantViewModel(PlantRepo(FakePlantDao(), null))
                 }
             }
 
@@ -181,4 +180,15 @@ fun UtilityAppPreview() {
             Text("Shader support requires Android 13+")
         }
     }
+}
+
+// dummy class
+class FakePlantDao : au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDao {
+    override fun getAllPlantsFLow(): kotlinx.coroutines.flow.Flow<List<au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant>> {
+        return kotlinx.coroutines.flow.flowOf(kotlin.collections.emptyList())
+    }
+
+    override suspend fun getPlantById(plantId: String) = null
+
+    override suspend fun insertPlant(plant: au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant) {}
 }

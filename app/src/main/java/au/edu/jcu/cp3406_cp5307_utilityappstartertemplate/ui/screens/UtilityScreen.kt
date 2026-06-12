@@ -68,7 +68,7 @@ fun PlantCard(
     onWaterClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val daysLeft = plant.daysUntilNextWater
+    val daysLeft = plant.getDaysUntilNextWater()
     val isOverdue = daysLeft < 0
 
     val cardColors = if (isOverdue) {

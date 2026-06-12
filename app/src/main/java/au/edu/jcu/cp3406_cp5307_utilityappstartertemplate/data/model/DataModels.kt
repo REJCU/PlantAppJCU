@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Ignore
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -20,28 +21,3 @@ data class UiState(
     val isLoading: Boolean = false,
     val isAddPlantDialogVisible: Boolean = false
 )
-
-@Entity(tableName = "Tracked_Plants")
-data class TrackedPlant(
-    @PrimaryKey val id: String,
-    val name: String,
-    val species: String,
-    val wateringIntervalDays: Int,
-    val lastWateredDay: Long
-) {
-    // Helper property to map the database Long back to a usable LocalDate
-    val lastWatered: LocalDate
-        @RequiresApi(Build.VERSION_CODES.O)
-        get() = LocalDate.ofEpochDay(lastWateredDay)
-
-    val daysUntilNextWater: Int
-        @RequiresApi(Build.VERSION_CODES.O)
-        get() {
-            val nextWateringDate = lastWatered.plusDays(wateringIntervalDays.toLong())
-            return ChronoUnit.DAYS.between(LocalDate.now(), nextWateringDate).toInt()
-        }
-
-    val needsWatering: Boolean
-        @RequiresApi(Build.VERSION_CODES.O)
-        get() = daysUntilNextWater < 0
-}

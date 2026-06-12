@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlantDao {
-    @Query("SELECT * FROM tracked_plants")
+    @Query("SELECT * FROM Tracked_Plants")
     fun getAllPlantsFLow(): Flow<List<TrackedPlant>>
 
-    @Query("SELECT * FROM tracked_plants WHERE id = :plantId LIMIT 1")
+    @Query("SELECT * FROM Tracked_Plants WHERE id = :plantId LIMIT 1")
     suspend fun getPlantById(plantId: String): TrackedPlant?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
