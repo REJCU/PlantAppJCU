@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDao
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -110,7 +111,7 @@ fun PlantCard(
 
             IconButton(onClick = onWaterClick) {
                 Text(
-                    text = if (isOverdue) "Thirsty" else "💧 Water",
+                    text = if (isOverdue) "\uD83D\uDD25" else "💧",
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantRepo
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.UiState
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,7 +56,8 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
 
     fun waterPlant(plantId: String) {
         viewModelScope.launch {
-            repository.updateWateringTime(plantId)
+            val todayDate = LocalDate.now().toEpochDay()
+            repository.waterPlant(plantId, todayDate)
         }
     }
 }

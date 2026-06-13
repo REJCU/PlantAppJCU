@@ -34,4 +34,8 @@ class PlantRepo(
         )
         plantDao.insertPlant(newPlant)
     }
+
+    suspend fun waterPlant(plantId: String, todayDate: Long) {
+        plantDao.waterPlant(plantId, todayDate)
+    }
 }

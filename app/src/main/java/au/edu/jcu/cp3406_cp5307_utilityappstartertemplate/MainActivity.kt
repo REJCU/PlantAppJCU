@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.ShaderBrush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,7 +65,8 @@ class MainActivity : ComponentActivity() {
         val plantRepository = PlantRepo(plantDao, null) // add api here
 
         // factory injection
-        val plantViewModelFactory = viewModelFactory { initializer {
+        val plantViewModelFactory = viewModelFactory {
+            initializer {
             PlantViewModel(plantRepository)
             }
         }
@@ -168,13 +168,11 @@ fun UtilityAppPreview() {
             val shader = RuntimeShader(BACKGROUND_SHADER_SRC)
             val brush = ShaderBrush(shader)
 
-            val context = LocalContext.current
             val previewFactory = viewModelFactory {
                 initializer {
                     PlantViewModel(PlantRepo(FakePlantDao(), null))
                 }
             }
-
             UtilityApp(shader, brush, plantViewModelFactory = previewFactory)
         } else {
             Text("Shader support requires Android 13+")
@@ -187,8 +185,7 @@ class FakePlantDao : au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.reposito
     override fun getAllPlantsFLow(): kotlinx.coroutines.flow.Flow<List<au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant>> {
         return kotlinx.coroutines.flow.flowOf(kotlin.collections.emptyList())
     }
-
     override suspend fun getPlantById(plantId: String) = null
-
     override suspend fun insertPlant(plant: au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant) {}
+    override suspend fun waterPlant(plantId: String, todayEpochDay: Long) {}
 }
