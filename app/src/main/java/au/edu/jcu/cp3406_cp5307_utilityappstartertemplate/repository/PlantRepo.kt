@@ -24,13 +24,21 @@ class PlantRepo(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun addNewPlant(name: String, species: String, interval: Int) {
+    suspend fun addNewPlant(
+        name: String,
+        species: String,
+        interval: Int,
+        location: String,
+        plantType: String
+    ) {
         val newPlant = TrackedPlant(
             id = UUID.randomUUID().toString(),
             name = name,
             species = species,
             wateringIntervalDays = interval,
-            lastWateredDay = LocalDate.now().toEpochDay()
+            lastWateredDay = LocalDate.now().toEpochDay(),
+            location = location,
+            plantType = plantType
         )
         plantDao.insertPlant(newPlant)
     }

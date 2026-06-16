@@ -19,5 +19,8 @@ data class UiState(
     val plants: List<TrackedPlant> = emptyList(),
     val sortByUrgency: Boolean = false,
     val isLoading: Boolean = false,
-    val isAddPlantDialogVisible: Boolean = false
+    val isAddPlantDialogVisible: Boolean = false,
+    val selectedLocation: String = "All",
+    val selectedPlantType: String = "All"
 )
+

@@ -9,16 +9,91 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    viewModel: PlantViewModel,
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    val houseLocations = listOf("All", "Front", "Back", "Side")
+    val plantTypes = listOf("All", "Succulent", "Fern", "Shrub", "Other")
+
     Column(
-        Modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text("Settings Screen", style = MaterialTheme.typography.headlineMedium)
-        Text("This is where you can add toggles or preferences.")
+        Text(
+            text = "Garden View Filters",
+            style = MaterialTheme.typography.headlineMedium
+        )
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Plant Location",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Filter view to a side of the house.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                houseLocations.forEach { loc ->
+                    FilterChip(
+                        selected = uiState.selectedLocation == loc,
+                        onClick = { viewModel.updateLocation(loc) },
+                        label = { Text(loc) }
+                    )
+                }
+            }
+        }
+
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Plant Category",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = "Show only specific types of plants.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                plantTypes.forEach { type ->
+                    FilterChip(
+                        selected = uiState.selectedPlantType == type,
+                        onClick = { viewModel.updatePlantType(type) },
+                        label = { Text(type) }
+                    )
+                }
+            }
+        }
     }
 }

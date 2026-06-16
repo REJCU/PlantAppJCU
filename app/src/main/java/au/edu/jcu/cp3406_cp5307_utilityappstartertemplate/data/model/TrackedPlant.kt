@@ -13,7 +13,9 @@ data class TrackedPlant(
     val name: String,
     val species: String,
     val wateringIntervalDays: Int,
-    val lastWateredDay: Long
+    val lastWateredDay: Long,
+    val location: String = "Front",
+    val plantType: String = "Other"
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
     fun getLastWateredDate(): LocalDate {

@@ -99,6 +99,12 @@ fun PlantCard(
                 Text(text = plant.name, style = MaterialTheme.typography.titleLarge)
                 Text(text = plant.species, style = MaterialTheme.typography.bodyMedium)
                 Text(
+                    text = "${plant.location} • ${plant.plantType} (${plant.species})",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (isOverdue) MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Text(
                     text = when {
                         daysLeft < 0 -> "Overdue by ${absoluteValue(daysLeft)} days"
                         daysLeft == 0 -> "Due today"

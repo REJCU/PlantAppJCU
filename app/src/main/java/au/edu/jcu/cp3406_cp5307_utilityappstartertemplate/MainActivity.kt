@@ -144,16 +144,16 @@ fun UtilityApp(
             }
         ) {
             when (selectedTab) {
-                "Utility" -> UtilityScreen(viewModel = plantViewModel)
-                "Settings" -> SettingsScreen()
+                "Utility" -> UtilityScreen(plantViewModel)
+                "Settings" -> SettingsScreen(plantViewModel)
             }
         }
 
         if (uiState.isAddPlantDialogVisible) {
             AddPlantDialog(
                 onDismiss = { plantViewModel.dismissAddPlantDialog() },
-                onConfirm = { name, species, interval ->
-                    plantViewModel.addLocalPlant(name, species, interval ?: 0)
+                onConfirm = { name, species, interval, location, plantType ->
+                    plantViewModel.addLocalPlant(name, species, interval ?: 0,  location, plantType )
                 }
             )
         }
