@@ -27,8 +27,19 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val houseLocations = listOf("All", "Front", "Back", "Side")
-    val plantTypes = listOf("All", "Succulent", "Fern", "Shrub", "Other")
+    val houseLocations = listOf("All", "Front", "Back", "Right Side", "Left Side", "Inside")
+    val plantTypes = listOf(
+        "All",
+        "Succulent & Cactus",
+        "Fern",
+        "Shrub",
+        "Indoor Foliage",
+        "Flowering Plant",
+        "Herb & Vegetable",
+        "Tree & Palm",
+        "Vine & Climber",
+        "Other"
+    )
 
     Column(
         modifier = modifier

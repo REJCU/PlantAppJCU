@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import kotlinx.coroutines.flow.Flow
-import java.sql.Date
 
 @Dao
 interface PlantDao {

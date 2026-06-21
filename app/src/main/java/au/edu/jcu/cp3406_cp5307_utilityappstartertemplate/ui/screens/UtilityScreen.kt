@@ -3,6 +3,7 @@ package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,13 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDao
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.components.AddPlantDialog
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
+import kotlin.math.abs
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UtilityScreen(viewModel: PlantViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val apiResult by viewModel.apiSearchResults.collectAsState()
+    val isSearching by viewModel.isSearchingNetwork.collectAsState()
 
     Column(
         modifier = Modifier
@@ -40,7 +45,10 @@ fun UtilityScreen(viewModel: PlantViewModel) {
         Text("Utility Screen", style = MaterialTheme.typography.headlineMedium)
 
         if (uiState.isLoading) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator()
             }
         } else {
@@ -59,6 +67,29 @@ fun UtilityScreen(viewModel: PlantViewModel) {
                 }
             }
         }
+    }
+
+    if (uiState.isAddPlantDialogVisible) {
+        AddPlantDialog(
+            onDismiss = { viewModel.dismissAddPlantDialog() },
+            onConfirm = { name, species, interval, location, type ->
+                viewModel.addLocalPlant(
+                    name = name,
+                    species = species,
+                    wateringInterval = interval ?: 7,
+                    location = location,
+                    plantType = type
+                )
+            },
+            apiResult = apiResult,
+            isSearching = isSearching,
+            onSearchQueryChanged = { query ->
+                viewModel.searchOnlineDatabase(query)
+            },
+            onPlantSelected = { id, fallbackCommonName, fallbackScientific, onFetched ->
+                viewModel.selectPlantFromNetwork(id, fallbackCommonName, fallbackScientific, onFetched)
+            }
+        )
     }
 }
 
@@ -99,14 +130,14 @@ fun PlantCard(
                 Text(text = plant.name, style = MaterialTheme.typography.titleLarge)
                 Text(text = plant.species, style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    text = "${plant.location} • ${plant.plantType} (${plant.species})",
+                    text = "${plant.location} • ${plant.plantType}",
                     style = MaterialTheme.typography.labelMedium,
                     color = if (isOverdue) MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
                 Text(
                     text = when {
-                        daysLeft < 0 -> "Overdue by ${absoluteValue(daysLeft)} days"
+                        daysLeft < 0 -> "Overdue by ${abs(daysLeft)} days"
                         daysLeft == 0 -> "Due today"
                         else -> "Water in $daysLeft days"
                     },
@@ -125,5 +156,3 @@ fun PlantCard(
         }
     }
 }
-
-private fun absoluteValue(value: Int): Int = if (value < 0) -value else value

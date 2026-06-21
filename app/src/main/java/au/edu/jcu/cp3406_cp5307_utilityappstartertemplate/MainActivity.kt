@@ -28,7 +28,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +40,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.components.AddPlantDialog
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PerennialApi
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.SettingsScreen
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.UtilityScreen
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.theme.BACKGROUND_SHADER_SRC
@@ -49,20 +48,30 @@ import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.theme.CP3406_CP5603
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDatabase
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantRepo
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-const val myKey = BuildConfig.NASA_API_KEY
+const val PERU_URL = "https://perenual.com/"
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // init
+        // init vals
         val database = PlantDatabase.getDatabase(applicationContext)
         val plantDao = database.plantDao()
 
+        // init retrofit client
+        val retrofit = Retrofit.Builder()
+            .baseUrl(PERU_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val perennialApiService = retrofit.create(PerennialApi::class.java)
+
         // supply to repo instance
-        val plantRepository = PlantRepo(plantDao, null) // add api here
+        val plantRepository = PlantRepo(plantDao, perennialApiService)
 
         // factory injection
         val plantViewModelFactory = viewModelFactory {
@@ -91,7 +100,7 @@ fun UtilityApp(
 ) {
     var selectedTab by remember { mutableStateOf("Utility") }
     val plantViewModel: PlantViewModel = viewModel(factory =  plantViewModelFactory)
-    val uiState by plantViewModel.uiState.collectAsState()
+    // val uiState by plantViewModel.uiState.collectAsState()
 
     val infiniteTransition = rememberInfiniteTransition(label = "ShaderTime")
     val time by infiniteTransition.animateFloat(
@@ -148,15 +157,6 @@ fun UtilityApp(
                 "Settings" -> SettingsScreen(plantViewModel)
             }
         }
-
-        if (uiState.isAddPlantDialogVisible) {
-            AddPlantDialog(
-                onDismiss = { plantViewModel.dismissAddPlantDialog() },
-                onConfirm = { name, species, interval, location, plantType ->
-                    plantViewModel.addLocalPlant(name, species, interval ?: 0,  location, plantType )
-                }
-            )
-        }
     }
 }
 
@@ -183,9 +183,9 @@ fun UtilityAppPreview() {
 // dummy class
 class FakePlantDao : au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDao {
     override fun getAllPlantsFLow(): kotlinx.coroutines.flow.Flow<List<au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant>> {
-        return kotlinx.coroutines.flow.flowOf(kotlin.collections.emptyList())
+        return kotlinx.coroutines.flow.flowOf(emptyList())
     }
     override suspend fun getPlantById(plantId: String) = null
     override suspend fun insertPlant(plant: au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant) {}
-    override suspend fun waterPlant(plantId: String, todayEpochDay: Long) {}
+    override suspend fun waterPlant(plantId: String, todayDate: Long) {}
 }

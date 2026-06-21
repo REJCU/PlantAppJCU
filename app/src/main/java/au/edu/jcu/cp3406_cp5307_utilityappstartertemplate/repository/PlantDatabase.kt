@@ -17,10 +17,10 @@ abstract class PlantDatabase : RoomDatabase() {
         fun  getDatabase(context: Context): PlantDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    PlantDatabase::class.java,
-                    "plant_database"
-                ).build()
+                                context.applicationContext,
+                                PlantDatabase::class.java,
+                                "plant_database"
+                            ).fallbackToDestructiveMigration(false).build()
                 INSTANCE = instance
                 instance
             }
