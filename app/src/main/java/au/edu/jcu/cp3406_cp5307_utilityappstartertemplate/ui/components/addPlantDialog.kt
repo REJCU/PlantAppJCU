@@ -1,12 +1,13 @@
 package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.components
 
-import android.R.attr.enabled
-import android.R.attr.type
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -22,14 +23,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantSearchResponse
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantSearchResult
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPlantDialog(
     onDismiss: () -> Unit,
-    onConfirm: (name: String, species: String, intervalDays: Int?, location: String, type: String) -> Unit
+    onConfirm: (String, String, Int?, String, String) -> Unit,
+    apiResult: List<PlantSearchResult>,
+    isSearching: Boolean,
+    onSearchQueryChanged: (String) -> Unit,
+    onPlantSelected: (plantId: Int, fallbackCommonName: String?, fallbackScientific: String?, onFetched: (String, String, String) -> Unit) -> Unit
 ) {
     var nameInput by remember { mutableStateOf("") }
     var speciesInput by remember { mutableStateOf("") }
@@ -37,26 +44,95 @@ fun AddPlantDialog(
 
     var locationExpanded by remember { mutableStateOf(false) }
     var locationInput by remember { mutableStateOf("") }
-    val locations = listOf("Front", "Back", "Side")
+    val locations = listOf("Front", "Back", "Right Side", "Left Side", "Inside")
 
     var typeExpanded by remember { mutableStateOf(false) }
     var typeInput by remember { mutableStateOf("") }
-    val plantTypes = listOf("Succulent", "Fern", "Shrub", "Other")
+    val plantTypes = listOf(
+        "Succulent & Cactus",
+        "Fern",
+        "Shrub",
+        "Indoor Foliage",
+        "Flowering Plant",
+        "Herb & Vegetable",
+        "Tree & Palm",
+        "Vine & Climber",
+        "Other"
+    )
+    var apiDropdownExpanded by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Track new plant", style = MaterialTheme.typography.titleLarge) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ExposedDropdownMenuBox(
+                    expanded = apiDropdownExpanded && (isSearching || apiResult.isNotEmpty()),
+                    onExpandedChange = { apiDropdownExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = speciesInput,
+                        onValueChange = { newValue ->
+                            speciesInput = newValue
+                            apiDropdownExpanded = true
+                            onSearchQueryChanged(newValue)
+                        },
+                        label = { Text("Species") },
+                        trailingIcon = {
+                            if (isSearching) {
+                                CircularProgressIndicator(modifier = Modifier.fillMaxWidth(0.1f))
+                            } else {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = apiDropdownExpanded)
+                            }
+                        },
+                        modifier = Modifier
+                            .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = apiDropdownExpanded && (isSearching || apiResult.isNotEmpty()),
+                        onDismissRequest = { apiDropdownExpanded = false },
+                        modifier = Modifier.heightIn(max = 200.dp)
+                    ) {
+                        apiResult.forEach { plantMatch ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(text = plantMatch.common_name ?: "Unknown Common Name", style = MaterialTheme.typography.bodyLarge)
+
+                                        val primaryScientific = plantMatch.scientific_name?.firstOrNull()
+                                        if (primaryScientific != null) {
+                                            Text(text = primaryScientific, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    android.util.Log.d("PlantDebug", "watering ${plantMatch.watering}")
+                                    val primaryScientific = plantMatch.scientific_name?.firstOrNull()
+
+                                    onPlantSelected(
+                                        plantMatch.id,
+                                        plantMatch.common_name,
+                                       primaryScientific
+                                    ) { name, species, interval ->
+                                        nameInput = name
+                                        speciesInput = species
+                                        intervalInput = interval
+                                    }
+
+                                    apiDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
                 OutlinedTextField(
                     value = nameInput,
                     onValueChange = { nameInput = it },
-                    label = { Text("Name") }
-                )
-                OutlinedTextField(
-                    value = speciesInput,
-                    onValueChange = { speciesInput = it },
-                    label = { Text("Species") }
+                    label = { Text("Name") },
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = intervalInput,
@@ -65,8 +141,11 @@ fun AddPlantDialog(
                             intervalInput = intervalValue
                         }
                     },
-                    label = { Text("Watering Interval") }
+                    label = { Text("Watering Interval") },
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
+
                 ExposedDropdownMenuBox(
                     expanded = locationExpanded,
                     onExpandedChange = { locationExpanded = !locationExpanded }
