@@ -54,7 +54,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 const val PERU_URL = "https://perenual.com/"
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,35 +83,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CP3406_CP5603UtilityAppStarterTemplateTheme {
-                val shader = remember { RuntimeShader(BACKGROUND_SHADER_SRC) }
-                val brush = remember { ShaderBrush(shader) }
-                UtilityApp(shader, brush, plantViewModelFactory)
+                UtilityApp(plantViewModelFactory)
             }
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun UtilityApp(
-    shader: RuntimeShader,
-    brush: ShaderBrush,
     plantViewModelFactory: ViewModelProvider.Factory
 ) {
     var selectedTab by remember { mutableStateOf("Utility") }
     val plantViewModel: PlantViewModel = viewModel(factory =  plantViewModelFactory)
-    // val uiState by plantViewModel.uiState.collectAsState()
-
-    val infiniteTransition = rememberInfiniteTransition(label = "ShaderTime")
-    val time by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 10f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(100000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "TimeUniform"
-    )
 
     Scaffold(
         bottomBar = {
@@ -134,7 +118,7 @@ fun UtilityApp(
             if (selectedTab == "Utility") {
                 FloatingActionButton(
                     onClick = { plantViewModel.showAddPlantDialog() },
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
                     contentColor = MaterialTheme.colorScheme.secondary
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "add plant")
@@ -145,12 +129,6 @@ fun UtilityApp(
         Box(modifier = Modifier
             .padding(innerPadding)
             .fillMaxSize()
-            .drawWithCache {
-                shader.setFloatUniform("iResolution", size.width, size.height)
-                shader.setFloatUniform("iTime", time)
-                shader.setFloatUniform("iDuration", 2.0f)
-                onDrawBehind { drawRect(brush) }
-            }
         ) {
             when (selectedTab) {
                 "Utility" -> UtilityScreen(plantViewModel)
@@ -160,23 +138,17 @@ fun UtilityApp(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun UtilityAppPreview() {
     CP3406_CP5603UtilityAppStarterTemplateTheme {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val shader = RuntimeShader(BACKGROUND_SHADER_SRC)
-            val brush = ShaderBrush(shader)
-
-            val previewFactory = viewModelFactory {
-                initializer {
-                    PlantViewModel(PlantRepo(FakePlantDao(), null))
-                }
+        val previewFactory = viewModelFactory {
+            initializer {
+                PlantViewModel(PlantRepo(FakePlantDao(), null))
             }
-            UtilityApp(shader, brush, plantViewModelFactory = previewFactory)
-        } else {
-            Text("Shader support requires Android 13+")
         }
+        UtilityApp(previewFactory)
     }
 }
 
