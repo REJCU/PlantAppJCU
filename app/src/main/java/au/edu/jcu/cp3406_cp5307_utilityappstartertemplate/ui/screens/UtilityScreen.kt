@@ -11,9 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +27,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.R
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.components.AddPlantDialog
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
@@ -42,7 +49,7 @@ fun UtilityScreen(viewModel: PlantViewModel) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Utility Screen", style = MaterialTheme.typography.headlineMedium)
+        Text("Garden View", style = MaterialTheme.typography.headlineMedium)
 
         if (uiState.isLoading) {
             Box(
@@ -146,11 +153,23 @@ fun PlantCard(
                 )
             }
 
-            IconButton(onClick = onWaterClick) {
-                Text(
-                    text = if (isOverdue) "\uD83D\uDD25" else "💧",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+            FilledTonalButton (onClick = onWaterClick,
+                colors = ButtonDefaults.filledTonalButtonColors(
+                     if (isOverdue) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.primaryContainer
+                    },
+                    if (isOverdue) {
+                        MaterialTheme.colorScheme.onError
+                    } else {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    }
+                )) {
+                Icon(
+                    painterResource(R.drawable.outline_water_drop),
+                    contentDescription = if (isOverdue) "Plant is overdue for water" else "Water plant",
+                    tint = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             }
         }

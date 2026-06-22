@@ -13,6 +13,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,10 +44,8 @@ fun SettingsScreen(
     )
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = "Garden View Filters",
@@ -55,7 +55,7 @@ fun SettingsScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "Plant Location",
+                text = "Location",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -64,11 +64,12 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                houseLocations.forEach { loc ->
+                items(houseLocations) { loc ->
                     FilterChip(
                         selected = uiState.selectedLocation == loc,
                         onClick = { viewModel.updateLocation(loc) },
@@ -78,11 +79,12 @@ fun SettingsScreen(
             }
         }
 
+
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "Plant Category",
+                text = "Category",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -91,13 +93,11 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                plantTypes.forEach { type ->
+                items(plantTypes) { type ->
                     FilterChip(
                         selected = uiState.selectedPlantType == type,
                         onClick = { viewModel.updatePlantType(type) },
