@@ -76,4 +76,8 @@ class PlantRepo(
     suspend fun waterPlant(plantId: String, todayDate: Long) = withContext(Dispatchers.IO) {
         plantDao.waterPlant(plantId, todayDate)
     }
+
+    suspend fun deletePlant(plant: TrackedPlant) {
+        plantDao.deletePlant(plant)
+    }
 }

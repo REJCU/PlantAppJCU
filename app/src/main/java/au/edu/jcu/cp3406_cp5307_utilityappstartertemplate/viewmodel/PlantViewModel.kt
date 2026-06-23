@@ -6,9 +6,11 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.BuildConfig
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantRepo
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.UiState
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantSearchResult
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -114,6 +116,12 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
         viewModelScope.launch {
             val todayDate = LocalDate.now().toEpochDay()
             repository.waterPlant(plantId, todayDate)
+        }
+    }
+
+    fun onDeletePlantClicked(plant: TrackedPlant) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deletePlant(plant)
         }
     }
 

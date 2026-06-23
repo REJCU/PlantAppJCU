@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,8 +29,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.evaluateCubic
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.R
@@ -69,7 +77,8 @@ fun UtilityScreen(viewModel: PlantViewModel) {
                 ) { plant ->
                     PlantCard(
                         plant = plant,
-                        onWaterClick = { viewModel.waterPlant(plant.id) }
+                        onWaterClick = { viewModel.waterPlant(plant.id) },
+                        onDeleteClick = {viewModel.onDeletePlantClicked(plant)}
                     )
                 }
             }
@@ -105,10 +114,13 @@ fun UtilityScreen(viewModel: PlantViewModel) {
 fun PlantCard(
     plant: TrackedPlant,
     onWaterClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val daysLeft = plant.getDaysUntilNextWater()
     val isOverdue = daysLeft < 0
+
+    var expanded by remember { mutableStateOf(false) }
 
     val cardColors = if (isOverdue) {
         CardDefaults.cardColors(
@@ -153,6 +165,10 @@ fun PlantCard(
                 )
             }
 
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
             FilledTonalButton (onClick = onWaterClick,
                 colors = ButtonDefaults.filledTonalButtonColors(
                      if (isOverdue) {
@@ -169,8 +185,34 @@ fun PlantCard(
                 Icon(
                     painterResource(R.drawable.outline_water_drop),
                     contentDescription = if (isOverdue) "Plant is overdue for water" else "Water plant",
-                    tint = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                )
+                    tint = if (isOverdue) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.primary
+                    )
+            }
+                Box {
+                    IconButton(onClick = {expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Options"
+                        )
+                    }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text("Delete Plant",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onDeleteClick()
+                            }
+                        )
+                    }
+                }
             }
         }
     }

@@ -40,6 +40,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PerennialApi
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.SettingsScreen
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.UtilityScreen
@@ -160,4 +161,5 @@ class FakePlantDao : au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.reposito
     override suspend fun getPlantById(plantId: String) = null
     override suspend fun insertPlant(plant: au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant) {}
     override suspend fun waterPlant(plantId: String, todayDate: Long) {}
+    override suspend fun deletePlant(plant: TrackedPlant) {}
 }

@@ -1,6 +1,7 @@
 package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -20,4 +21,7 @@ interface PlantDao {
 
     @Query("Update Tracked_Plants SET lastWateredDay = :todayDate WHERE id = :plantId")
     suspend fun waterPlant(plantId: String, todayDate: Long)
+
+    @Delete
+    suspend fun deletePlant(plant: TrackedPlant)
 }
