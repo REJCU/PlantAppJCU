@@ -3,20 +3,14 @@ package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.input.key.Key
-import androidx.room.Query
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PerennialApi
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantAPI
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantSearchResponse
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantSearchResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 import java.time.LocalDate
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class PlantRepo(
     private val plantDao: PlantDao,
@@ -31,7 +25,7 @@ class PlantRepo(
             response.data
         } catch (e: Exception) {
             Log.e("PlantRepo", "Network lookup failed", e)
-            emptyList<PlantSearchResult>()
+            emptyList()
         }
     }
     suspend fun getPlantDetails(apiKey: String, id: Int): PlantSearchResult? = withContext(Dispatchers.IO) {
@@ -41,15 +35,6 @@ class PlantRepo(
         } catch (e: Exception) {
             Log.e("PlantRepo", "Failed fetching details for plant ID: $id", e)
             null
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun updateWateringTime(plantId: String) = withContext(Dispatchers.IO) {
-        val existingPlant = plantDao.getPlantById(plantId)
-        if (existingPlant != null) {
-            val updated = existingPlant.copy(lastWateredDay = LocalDate.now().toEpochDay())
-            plantDao.insertPlant(updated)
         }
     }
 
@@ -77,7 +62,7 @@ class PlantRepo(
         plantDao.waterPlant(plantId, todayDate)
     }
 
-    suspend fun deletePlant(plant: TrackedPlant) {
+    suspend fun deletePlant(plant: TrackedPlant) = withContext(Dispatchers.IO) {
         plantDao.deletePlant(plant)
     }
 }

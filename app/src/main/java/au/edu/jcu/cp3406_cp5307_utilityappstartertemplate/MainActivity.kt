@@ -1,18 +1,11 @@
 package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate
 
-import android.graphics.RuntimeShader
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,8 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,7 +35,6 @@ import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlan
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PerennialApi
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.SettingsScreen
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens.UtilityScreen
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.theme.BACKGROUND_SHADER_SRC
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.theme.CP3406_CP5603UtilityAppStarterTemplateTheme
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDatabase
@@ -155,11 +145,11 @@ fun UtilityAppPreview() {
 
 // dummy class
 class FakePlantDao : au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantDao {
-    override fun getAllPlantsFLow(): kotlinx.coroutines.flow.Flow<List<au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant>> {
+    override fun getAllPlantsFLow(): kotlinx.coroutines.flow.Flow<List<TrackedPlant>> {
         return kotlinx.coroutines.flow.flowOf(emptyList())
     }
     override suspend fun getPlantById(plantId: String) = null
-    override suspend fun insertPlant(plant: au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant) {}
+    override suspend fun insertPlant(plant: TrackedPlant) {}
     override suspend fun waterPlant(plantId: String, todayDate: Long) {}
     override suspend fun deletePlant(plant: TrackedPlant) {}
 }

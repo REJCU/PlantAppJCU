@@ -2,7 +2,6 @@ package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,14 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.PlantSortOrder
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.viewmodel.PlantViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -58,11 +57,6 @@ fun SettingsScreen(
                 text = "Location",
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(
-                text = "Filter view to a side of the house.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
 
             LazyRow(
                 modifier = Modifier
@@ -87,11 +81,6 @@ fun SettingsScreen(
                 text = "Category",
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(
-                text = "Show only specific types of plants.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
 
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -106,5 +95,34 @@ fun SettingsScreen(
                 }
             }
         }
+
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Sorting",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            val currentSortOrder by viewModel.sortOrder.collectAsState()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = currentSortOrder == PlantSortOrder.URGENCY,
+                    onClick = { viewModel.setSortOrder(PlantSortOrder.URGENCY) },
+                    label = { Text("Urgency") }
+                )
+
+                FilterChip(
+                    selected = currentSortOrder == PlantSortOrder.NAME,
+                    onClick = { viewModel.setSortOrder(PlantSortOrder.NAME) },
+                    label = { Text("Alphabetical") }
+                )
+            }
+        }
+
     }
 }

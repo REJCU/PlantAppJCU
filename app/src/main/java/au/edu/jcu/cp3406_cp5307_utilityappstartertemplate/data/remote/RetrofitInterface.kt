@@ -1,6 +1,5 @@
 package au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote
 
-import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.BuildConfig
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

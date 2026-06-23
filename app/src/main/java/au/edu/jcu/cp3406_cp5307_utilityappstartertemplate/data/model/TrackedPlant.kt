@@ -27,9 +27,4 @@ data class TrackedPlant(
         val nextWateringDate = getLastWateredDate().plusDays(wateringIntervalDays.toLong())
         return ChronoUnit.DAYS.between(LocalDate.now(), nextWateringDate).toInt()
     }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun checkIfNeedsWatering(): Boolean {
-        return getDaysUntilNextWater() < 0
-    }
 }

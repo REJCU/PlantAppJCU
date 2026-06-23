@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.BuildConfig
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.PlantSortOrder
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.repository.PlantRepo
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.UiState
@@ -36,8 +37,11 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
     private val _isSearchingNetwork = MutableStateFlow(false)
     val isSearchingNetwork = _isSearchingNetwork.asStateFlow()
 
+    private val _sortOrder = MutableStateFlow(PlantSortOrder.URGENCY)
+    val sortOrder: StateFlow<PlantSortOrder> = _sortOrder.asStateFlow()
+
     init {
-            combine(repository.trackedPlants, _uiState) { plants, state ->
+            combine(repository.trackedPlants, _uiState, _sortOrder) { plants, state, currentSort ->
                 val filteredPlants = plants.filter { plant ->
                     val matchesLocation = state.selectedLocation == "All" ||
                             plant.location.equals(state.selectedLocation, ignoreCase = true)
@@ -47,10 +51,9 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
 
                     matchesLocation && matchesType
                 }
-                if (state.sortByUrgency) {
-                    filteredPlants.sortedBy { it.getDaysUntilNextWater() }
-                } else {
-                    filteredPlants.sortedBy { it.name }
+                when (currentSort) {
+                    PlantSortOrder.URGENCY -> filteredPlants.sortedBy { it.getDaysUntilNextWater() }
+                    PlantSortOrder.NAME -> filteredPlants.sortedBy { it.name.lowercase() }
                 }
             }.onEach { sortedPlants ->
                 _uiState.update { it.copy(plants = sortedPlants) }
@@ -125,6 +128,9 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
         }
     }
 
+    fun setSortOrder(order: PlantSortOrder) {
+        _sortOrder.value = order
+    }
 
     fun selectPlantFromNetwork(
         plantId: Int,
