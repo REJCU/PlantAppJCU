@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.model.TrackedPlant
 import au.edu.jcu.cp3406_cp5307_utilityappstartertemplate.data.remote.PlantSearchResult
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,7 +34,8 @@ fun AddPlantDialog(
     apiResult: List<PlantSearchResult>,
     isSearching: Boolean,
     onSearchQueryChanged: (String) -> Unit,
-    onPlantSelected: (plantId: Int, fallbackCommonName: String?, fallbackScientific: String?, onFetched: (String, String, String) -> Unit) -> Unit
+    onPlantSelected: (plantId: Int, fallbackCommonName: String?, fallbackScientific: String?, onFetched: (String, String, String) -> Unit) -> Unit,
+    editExistingPlant: TrackedPlant? = null
 ) {
     var nameInput by remember { mutableStateOf("") }
     var speciesInput by remember { mutableStateOf("") }
@@ -60,7 +62,7 @@ fun AddPlantDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Track new plant", style = MaterialTheme.typography.titleLarge) },
+        title = { Text(if (editExistingPlant == null) "Track new plant" else "Edit Plant Details", style = MaterialTheme.typography.titleLarge) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 ExposedDropdownMenuBox(
@@ -215,7 +217,7 @@ fun AddPlantDialog(
                     }
                 }
             ) {
-                Text("Add Plant")
+                Text(if (editExistingPlant == null) "Add Plant" else "Save Changes")
             }
         },
         dismissButton = {

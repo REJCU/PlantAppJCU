@@ -132,6 +132,30 @@ class PlantViewModel(private val repository: PlantRepo) : ViewModel() {
         _sortOrder.value = order
     }
 
+    fun editLocalPlant(
+        plantId: String,
+        newName: String,
+        newSpecies: String,
+        newInterval: Int,
+        newLocation: String,
+        newPlantType: String
+    ) {
+        viewModelScope.launch {
+            val oldPlant = uiState.value.plants.find { it.id == plantId }
+
+            if (oldPlant != null) {
+                val updatedPlant = oldPlant.copy(
+                    name = newName,
+                    species = newSpecies,
+                    wateringIntervalDays = newInterval,
+                    location = newLocation,
+                    plantType = newPlantType
+                )
+                repository.updatePlantDetails(updatedPlant)
+            }
+        }
+    }
+
     fun selectPlantFromNetwork(
         plantId: Int,
         fallbackCommonName: String?,

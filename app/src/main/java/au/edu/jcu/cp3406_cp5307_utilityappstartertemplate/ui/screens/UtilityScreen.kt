@@ -48,6 +48,8 @@ fun UtilityScreen(viewModel: PlantViewModel) {
     val apiResult by viewModel.apiSearchResults.collectAsState()
     val isSearching by viewModel.isSearchingNetwork.collectAsState()
 
+    var editedPlant by remember { mutableStateOf<TrackedPlant?>(null) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +77,8 @@ fun UtilityScreen(viewModel: PlantViewModel) {
                     PlantCard(
                         plant = plant,
                         onWaterClick = { viewModel.waterPlant(plant.id) },
-                        onDeleteClick = {viewModel.onDeletePlantClicked(plant)}
+                        onDeleteClick = {viewModel.onDeletePlantClicked(plant)},
+                        onEditClick = {editedPlant = plant}
                     )
                 }
             }
@@ -104,6 +107,30 @@ fun UtilityScreen(viewModel: PlantViewModel) {
             }
         )
     }
+
+    if (editedPlant != null) {
+        AddPlantDialog(
+            editExistingPlant = editedPlant,
+            onDismiss = { editedPlant = null },
+            onConfirm = { name, species, interval, location, type ->
+                viewModel.editLocalPlant(
+                    plantId = editedPlant!!.id,
+                    newName = name,
+                    newSpecies = species,
+                    newInterval = interval ?: 7,
+                    newLocation = location,
+                    newPlantType = type
+                )
+                editedPlant = null
+            },
+            apiResult = apiResult,
+            isSearching = isSearching,
+            onSearchQueryChanged = { query -> viewModel.searchOnlineDatabase(query) },
+            onPlantSelected = { id, fallbackCommonName, fallbackScientific, onFetched ->
+                viewModel.selectPlantFromNetwork(id, fallbackCommonName, fallbackScientific, onFetched)
+            }
+        )
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -112,6 +139,7 @@ fun PlantCard(
     plant: TrackedPlant,
     onWaterClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val daysLeft = plant.getDaysUntilNextWater()
@@ -197,6 +225,13 @@ fun PlantCard(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit Details") },
+                        onClick = {
+                            expanded = false
+                            onEditClick()
+                        }
+                    )
                     DropdownMenuItem(
                         text = {
                             Text("Delete Plant",

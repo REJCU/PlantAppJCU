@@ -65,4 +65,8 @@ class PlantRepo(
     suspend fun deletePlant(plant: TrackedPlant) = withContext(Dispatchers.IO) {
         plantDao.deletePlant(plant)
     }
+
+    suspend fun updatePlantDetails(plant: TrackedPlant) = withContext(Dispatchers.IO) {
+        plantDao.insertPlant(plant)
+    }
 }
