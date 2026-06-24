@@ -1,22 +1,28 @@
-# NasaWatch – CP3406 
+# PlantWatch – CP3406 
 
-This is a basic Android app for viewing the various API offerings that NASA has to offer. 
+This is a basic Android app for tracking plants around the house and their watering times. 
 It provides the structure for a simple tabular UI using **Jetpack Compose** and **Material Design 3**.
-Will follow the design language of NASA (Typography, ColorScheme and other)
 
 ---
 ## Style Guide 
 ### Typefaces
-- Helvectia Headings 
+- Helvetica Headings 
 - Source Sans Pro Body
 
 ### Color Palette 
-- Follows the NASA palette, which meets the highest standard of 508 color contrast requirements
-- AGLS shaders to provide a backdrop to 
+Uses Material3 Theme Builder.
 
 ---
 ## Features 
-- AGSL Shaders 
+- Tracks the common name, scientific name, location, type and watering interval of the plant. 
+- Uses Perenual Plant Data API to access plant data including name (common and scientific) and watering interval. 
+- At a glance view of the status of each plant with a button to reset the watering interval of each plant. 
+- Dropdown menu to edit the details and delete plants.
+- Floating Action Button for adding plants with a list of options for tracking.
+
+### Setting Screen
+- Location and Category filter to specify the desired plant.
+- Sort by watering urgency or Alphabetical order. 
 
 ---
 ## Getting Started
@@ -44,13 +50,13 @@ Will follow the design language of NASA (Typography, ColorScheme and other)
 
 ## Key Concepts Covered
 
-| Week | Concept                        | Used In                          |
-|------|--------------------------------|----------------------------------|
-| 1    | Kotlin + Android Studio         | MainActivity.kt |
-| 2    | Jetpack Compose Layouts         | UtilityApp(), UtilityScreen(), SettingsScreen()   |
-| 3    | Material Design 3               | CP3406_CP5603UtilityAppStarterTemplateTheme, MaterialTheme.typography |
-| 4    | ViewModel | Not included in starter          |
-| 5    | Retrofit  | Not included in starter          |
+| Week | Concept                 | Used In                                                               |
+|------|-------------------------|-----------------------------------------------------------------------|
+| 1    | Kotlin + Android Studio | MainActivity.kt                                                       |
+| 2    | Jetpack Compose Layouts | UtilityApp(), UtilityScreen(), SettingsScreen()                       |
+| 3    | Material Design 3       | CP3406_CP5603UtilityAppStarterTemplateTheme, MaterialTheme.typography |
+| 4    | ViewModel               | Not included in starter                                               |
+| 5    | Retrofit                | Not included in starter                                               |
 
 ---
 ## 📚 License
