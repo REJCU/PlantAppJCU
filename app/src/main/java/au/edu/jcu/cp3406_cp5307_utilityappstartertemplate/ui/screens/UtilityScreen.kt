@@ -172,22 +172,21 @@ fun PlantCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = plant.name, style = MaterialTheme.typography.titleLarge)
-                Text(text = plant.species, style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    text = "${plant.location} • ${plant.plantType}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (isOverdue) MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
                 Text(
                     text = when {
                         daysLeft < 0 -> "Overdue by ${abs(daysLeft)} days"
                         daysLeft == 0 -> "Due today"
                         else -> "Water in $daysLeft days"
                     },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
+                Text(
+                    text = "${plant.location} • ${plant.plantType}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Text(text = plant.species, style = MaterialTheme.typography.bodySmall)
             }
 
             Row(
